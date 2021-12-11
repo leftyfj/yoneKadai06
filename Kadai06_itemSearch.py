@@ -1,5 +1,4 @@
 import os
-import sys
 import requests
 import pandas
 import time
@@ -50,7 +49,6 @@ else:
   row = []
   try:
     functions.make_log('情報取得開始')
-    # for i in range(pages):
     for i in range(1,pages+1):
       print(f'{i}ページ目を取得')
       functions.make_log(f'{i}ページ目を取得')
@@ -91,9 +89,6 @@ else:
 
   print(f'最高値：{high_price:,}円')
   print(f'最安値：{low_price:,}円')
-
-  # id_mode = df['GenreId'].mode()[0]
-  # print(f'最も多いジャンルIDは{id_mode}です。')
 
 
 
