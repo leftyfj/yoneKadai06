@@ -149,3 +149,5 @@ rakuten.http
 rakutenApi.py
 TODO.txt
 検索結果.txt
+log/
+search/
