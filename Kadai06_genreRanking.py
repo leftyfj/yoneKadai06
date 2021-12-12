@@ -11,10 +11,7 @@ global keyword
 current_datetime = datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S')
 current_date = datetime.datetime.now().strftime('%Y-%m-%d')
 
-# os.makedirs(os.path.dirname(GENRERANKING_FILE_PATH), exist_ok=True)
 os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
-REQUEST_RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20170628?'
-
 
 def check_counts_of_items_by_keyword(keyword, APP_ID):
   REQUEST_ITEM_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?'
@@ -38,7 +35,8 @@ def set_pages_by_total_items(total):
   return pages
 
 def search_items_detail(keyword, pages):
-  REQUEST_RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20170628?'
+  # REQUEST_RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20170628?'
+  REQUEST_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?'
   rows = []
   try:
     functions.make_log('情報取得開始')
@@ -49,13 +47,18 @@ def search_items_detail(keyword, pages):
           'page': i,
       }
 
-      res = requests.get(REQUEST_RANKING_URL, params=params)
+      res = requests.get(REQUEST_URL, params=params)
       result = res.json()
       items_info = result['Items']
-      for j, item_info in enumerate(items_info):
+      for item_info in items_info:
         item_name = item_info['Item']['itemName'][:30]
+        item_price = item_info['Item']['itemPrice']
         item_genreId = item_info['Item']['genreId']
-        rows.append([item_name,item_genreId])
+        item_URL = item_info['Item']['itemUrl']
+        item_shopname = item_info['Item']['shopName']
+        item_shopURL = item_info['Item']['shopUrl']
+        rows.append([item_name, item_price, item_genreId,
+                   item_URL, item_shopname, item_shopURL])
       time.sleep(0.5)
   except:
     functions.has_error()
@@ -111,7 +114,7 @@ def main():
     print('該当の商品は見つかりませんでした。\n検索を終了します。')
   else:
     pages = set_pages_by_total_items(total)
-    print(f'検索された商品:{total}件、約{pages}ページ')
+    print(f'検索された商品:{total}件')
     functions.make_log(f'検索された商品:{total}件')
     
     try:
