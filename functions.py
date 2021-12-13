@@ -39,13 +39,14 @@ def set_pages_by_total_items(total):
     pages = MAX
   return pages
 
-def search_items_detail(keyword, pages):
+def search_items_detail(keyword, pages, show_progress=False):
   REQUEST_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?'
   rows = []
   try:
     make_log('情報取得開始')
     for i in range(1, pages+1):
-      print(f'{i}ページ目を取得中')
+      if show_progress==True:
+        print(f'{i}ページ目を取得中')
       params = {
           'keyword': keyword,
           'applicationId': APP_ID,

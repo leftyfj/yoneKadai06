@@ -32,7 +32,7 @@ def main():
       print(f'{total}件、{pages}ページ分の情報を取得します。')
       functions.make_log('{total}件、{pages}ページ分の情報開始')
       
-    rows = functions.search_items_detail(keyword, pages)
+    rows = functions.search_items_detail(keyword, pages, show_progress=True)
     print('データ取得完了')
     functions.make_log('データ取得完了')
     
