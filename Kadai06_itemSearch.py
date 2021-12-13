@@ -1,5 +1,5 @@
 import os
-import requests
+
 import pandas
 import time
 import datetime

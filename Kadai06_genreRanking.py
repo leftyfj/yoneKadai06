@@ -13,15 +13,6 @@ current_date = datetime.datetime.now().strftime('%Y-%m-%d')
 
 os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
 
-def find_genreId_mode(rows):
-  # col = ['Item','GenreId']
-  col = ['商品名', '価格', 'ジャンルId', '商品URL', '店名', '店URL']
-  df = pandas.DataFrame(rows, columns=col)
-  id_mode = df['ジャンルId'].mode()[0]
-  print(f'検索した商品はジャンルID{id_mode}に属しています。\nジャンルID{id_mode}のランキングを取得します。')
-  
-  return id_mode
-
 def make_itemRanking_by_genreId_mode(id_mode):
   REQUEST_RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20170628?'
   params = {
@@ -65,9 +56,10 @@ def main():
     try:
       functions.make_log('ランキング情報取得開始')
       rows = functions.search_items_detail(keyword, pages)
-      genreId_mode = find_genreId_mode(rows)
+      genreId_mode = functions.find_genreId_mode(rows)
       
-      genreranking_file_path = f'./search/rakuten_genreranking_{keyword}所属ジャンル_{current_datetime}.csv'
+      genre_name = functions.find_genre_name_by_genre_id(genreId_mode)
+      genreranking_file_path = f'./search/rakuten_genreranking_{keyword} 所属ジャンル_{genreId_mode}_{current_datetime}.csv'
       data = make_itemRanking_by_genreId_mode(genreId_mode)
       functions.save_data_in_csv_file(data, genreranking_file_path)
  

@@ -3,11 +3,11 @@ import datetime
 import time
 import traceback
 import requests
+import pandas
 
 from config import *
 
 ### ログ出力関数
-
 def make_log(txt):
     now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     logStr = '[%s:%s] %s' % ('log', now, txt)
@@ -39,14 +39,13 @@ def set_pages_by_total_items(total):
     pages = MAX
   return pages
 
-
 def search_items_detail(keyword, pages):
-  # REQUEST_RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20170628?'
   REQUEST_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?'
   rows = []
   try:
     make_log('情報取得開始')
     for i in range(1, pages+1):
+      print(f'{i}ページ目を取得中')
       params = {
           'keyword': keyword,
           'applicationId': APP_ID,
@@ -71,6 +70,34 @@ def search_items_detail(keyword, pages):
 
   return rows
 
+def find_genreId_mode(rows):
+  col = ['商品名', '価格', 'ジャンルId', '商品URL', '店名', '店URL']
+  df = pandas.DataFrame(rows, columns=col)
+  id_mode = df['ジャンルId'].mode()[0]
+  
+  genre_name_full = find_genre_name_by_genre_id(id_mode)
+  print(f'検索した商品は「{genre_name_full}」(ID: {id_mode})に属しています。\nジャンルID: {id_mode}のランキングを取得します。')
+
+  return id_mode
+
 def save_data_in_csv_file(data, path):
   os.makedirs(os.path.dirname(path), exist_ok=True)
   data.to_csv(path, index=False, encoding='utf_8_sig')
+
+def find_genre_name_by_genre_id(id):
+  GENRE_NAME_URL = 'https://app.rakuten.co.jp/services/api/IchibaGenre/Search/20140222?'
+
+  params = {
+      'applicationId': APP_ID,
+      'genreId': id,
+  }
+  
+  res = requests.get(GENRE_NAME_URL, params=params)
+
+  result = res.json()
+  genre_name = result['current']['genreName']
+  genre_parent_name = result['parents'][0]['parent']['genreName']
+  genre_name_full = f'{genre_parent_name} > {genre_name}'
+
+  return genre_name_full
+  
