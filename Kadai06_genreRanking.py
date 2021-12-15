@@ -5,6 +5,9 @@ import time
 import datetime
 import functions
 from config import *
+import googlespreadsheet as gss
+from logger import set_logger
+logger = set_logger(__name__)
 
 global keyword
 
@@ -41,32 +44,32 @@ def make_itemRanking_by_genreId_mode(id_mode):
   return df
 
 def main():
-  functions.make_log('検索開始')
+  logger.info('検索開始')
+  
   keyword = input('検索したい商品名: ')
   total = functions.check_counts_of_items_by_keyword(keyword, APP_ID)
 
   if total == 0:
-    functions.make_log('該当の商品なし。検索終了。')
+    logger.warning('該当の商品なし。検索終了。')
     print('該当の商品は見つかりませんでした。\n検索を終了します。')
   else:
     pages = functions.set_pages_by_total_items(total)
     print(f'検索された商品:{total}件')
-    functions.make_log(f'検索された商品:{total}件')
-    
+    logger.info(f'検索された商品:{total}件')
     try:
-      functions.make_log('ランキング情報取得開始')
+      logger.info('ランキング情報取得開始')
       rows = functions.search_items_detail(keyword, pages)
       genreId_mode = functions.find_genreId_mode(rows)
       
       genre_name = functions.find_genre_name_by_genre_id(genreId_mode)
       genreranking_file_path = f'./search/rakuten_genreranking_{keyword} 所属ジャンル_{genreId_mode}_{current_datetime}.csv'
       data = make_itemRanking_by_genreId_mode(genreId_mode)
-      functions.save_data_in_csv_file(data, genreranking_file_path)
+      gss.save_data_in_google_spreadsheet(data,'検索結果')
+      # functions.save_data_in_csv_file(data, genreranking_file_path)
  
     except:
       functions.has_error()
-    print('ランキングを作成しcsvファイルに保存しました。')
-    functions.make_log('ランキング作成完了。csvファイルに保存')
+    logger.info('ランキング作成完了。csvファイルに保存')
 
 if __name__ == "__main__":
     main()
